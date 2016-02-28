@@ -20,7 +20,7 @@ COMPILER_LANG = "compiler_cxx"
 
 def options(opt):
     opt.load(COMPILER_LANG)
-    opt.load('boost protoc unittest_gtest', tooldir=['waf-tools'])
+    opt.load('boost protoc', tooldir=['waf-tools'])
     
     opt.add_option('-d', '--debug', dest='debug', default=False, action='store_true')
     opt.add_option('-l', '--log', dest="log", default='', help='log level', action='store')
@@ -31,7 +31,7 @@ def configure(conf):
     conf.env['CXX'] = "clang++"
 #    conf.load("compiler_c++")
     conf.load(COMPILER_LANG)
-    conf.load('boost protoc unittest_gtest')
+    conf.load('boost protoc')
 
     _enable_pic(conf)
     _enable_debug(conf)     #debug
@@ -78,13 +78,6 @@ def build(bld):
             includes="libppaxos libzfec", 
             use="ppaxos",
             ) 
-
-    bld.program(features = 'gtest',
-                source=['test/loli_gtest.cpp', 'libppaxos/sample1.cc'], 
-                target="loli_gtest", 
-                includes="libppaxos", 
-                use="GTEST_PTHREAD ppaxos lib", 
-                install_path=False)
 
 
     bld.install_files('${PREFIX}/include', 

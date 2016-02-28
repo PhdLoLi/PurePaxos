@@ -26,7 +26,7 @@ node_id_t my_id;
 Captain *captain;
 std::string value;
 
-int total = 70000;
+int total = 100;
 //int total = 5000;
 slot_id_t commit_counter = 0;
 int global_counter = 0;
