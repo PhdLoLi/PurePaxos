@@ -31,9 +31,9 @@ These are prerequisites to build PurePaxos.
 
 **Required:**
 * [boost](http://www.boost.org/)
-* [protobuf](https://github.com/iliamo/Consumer-Producer-API)
-* [yaml-cpp](https://github.com/named-data/NFD.git)
-* [zeromq](http://gstreamer.freedesktop.org/data/pkg/osx/1.4.3/)
+* [protobuf](https://developers.google.com/protocol-buffers/)
+* [yaml-cpp](http://yaml.org/)
+* [zeromq](http://zeromq.org/)
 
 Prerequisites build instructions
 ==
@@ -75,7 +75,7 @@ Run Test
 $ bin/test_window_others 1 3
 </pre>
 
-- Terminal 2 -- Playing video & audio
+- Terminal 2 -- Node2
 <pre>
 $ bin/test_window_others 2 3
 </pre>
