@@ -44,7 +44,6 @@ def configure(conf):
 #    conf.check_cfg(package='apr-1', uselib_store='APR', args=pargs)
 #    conf.check_cfg(package='apr-util-1', uselib_store='APR-UTIL', args=pargs)
 #    conf.check_cfg(package='json', uselib_store='JSON', args=pargs)
-#    conf.check_cfg(package='protobuf', uselib_store='PROTOBUF', args=pargs)
     conf.check_cfg(package='libzmq', uselib_store='ZMQ', args=pargs)
 #    conf.check_cfg(package='check', uselib_store='CHECK', args=pargs)
     conf.check_cfg(package='yaml-cpp', uselib_store='YAML-CPP', args=pargs)

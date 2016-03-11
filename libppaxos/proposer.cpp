@@ -20,9 +20,9 @@ Proposer::Proposer(View &view, PropValue &value)
   qw_ = view_->rs_qw();
   rs_encoder_ = new RSEncoder(view_->rs_x(), view_->rs_n());
   rs_decoder_ = new RSDecoder(view_->rs_x(), view_->rs_n());
+  LOG_TRACE_PRO("Init RS for Proposer! qr_:%u qw_:%u", qr_, qw_);
   #else
   #endif 
-  LOG_TRACE_PRO("Init RS for Proposer! qr_:%u qw_:%u", qr_, qw_);
 }
 
 Proposer::Proposer() : max_ballot_(0), max_value_(NULL) {

@@ -26,7 +26,7 @@ node_id_t my_id;
 Captain *captain;
 std::string value;
 
-int total = 100;
+int total = 10000;
 //int total = 5000;
 slot_id_t commit_counter = 0;
 int global_counter = 0;
@@ -78,7 +78,7 @@ void count_latency(slot_id_t slot_id, PropValue& prop_value, int try_time) {
     LOG_INFO("count_latency triggered! but this is a command slot_id : %llu commit_counter : %llu ", slot_id, commit_counter);
     return;
   }
-//  LOG_INFO("count_latency triggered! slot_id : %llu", slot_id);
+  LOG_INFO("count_latency triggered! slot_id : %llu", slot_id);
   auto finish = std::chrono::high_resolution_clock::now();
   counter_mut.lock();
   commit_counter++;
@@ -96,7 +96,7 @@ void count_latency(slot_id_t slot_id, PropValue& prop_value, int try_time) {
   counter_mut.unlock();
 
   if (counter_tmp <= total * 1) {
-//    LOG_INFO("++++ I just Commit Value: %s ++++", value.c_str());
+    LOG_INFO("++++ I just Commit Value: %s ++++", value.c_str());
     if (counter_tmp % 10000 == 0) {
       auto finish = std::chrono::high_resolution_clock::now();
       uint64_t period = std::chrono::duration_cast<std::chrono::milliseconds>(finish-start).count();
@@ -127,6 +127,8 @@ int main(int argc, char** argv) {
   int node_num = stoi(argv[2]);
   int value_size = stoi(argv[3]);
   int win_size = stoi(argv[4]);
+  if (argc == 6)
+    total = stoi(argv[5]);
 
   config_file = "config/localhost-" + to_string(node_num) + ".yaml";
 
