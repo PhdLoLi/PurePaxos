@@ -3,6 +3,7 @@
 #include "ppaxos.pb.h"
 #include <mutex>
 #include <chrono>
+#include <boost/function.hpp>
 
 //#include "easylogging++.h"
 
@@ -114,8 +115,8 @@ using slot_id_t = uint64_t;
 using ballot_id_t = uint64_t;
 using value_id_t = uint64_t;
 
-using callback_t = std::function<void(slot_id_t, std::string&)>;
-using callback_full_t = std::function<void(slot_id_t, PropValue&, node_id_t)>;
-using callback_latency_t = std::function<void(slot_id_t, PropValue&, int)>;
+using callback_t = boost::function<void(slot_id_t, std::string&)>;
+using callback_full_t = boost::function<void(slot_id_t, PropValue&, node_id_t)>;
+using callback_latency_t = boost::function<void(slot_id_t, PropValue&, int)>;
 
 }  // namespace ppaxos

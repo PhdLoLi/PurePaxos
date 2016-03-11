@@ -4,12 +4,12 @@
  */
 
 #include "view.hpp"
-#include "commo.hpp"
+//#include <boost/bind.hpp>
+
 #include "captain.hpp"
 
-#include "threadpool.hpp" 
+//#include "threadpool.hpp" 
 //#include <boost/thread/mutex.hpp>
-//#include <boost/bind.hpp>
 #include <fstream>
 //#include <boost/filesystem.hpp>
 #include <chrono>
@@ -21,9 +21,10 @@
 
 namespace ppaxos {
 
+//using namespace std::placeholders;
 using namespace std;
 //using namespace boost::filesystem;
-using namespace boost::threadpool;
+//using namespace boost::threadpool;
 
 
   
@@ -43,7 +44,7 @@ class Master {
     my_name_ = view_->hostname();
 
     // init callback
-    callback_latency_t call_latency = bind(&Master::count_latency, this, _1, _2, _3);
+    callback_latency_t call_latency = boost::bind(&Master::count_latency, this, _1, _2, _3);
 //    callback_full_t callback_full = bind(&Master::count_exe_latency, this, _1, _2, _3);
     captain_ = new Captain(*view_, win_size_);
 
@@ -69,7 +70,7 @@ class Master {
     for (int i = 0; i < win_size_; i++) {
       counter_mut_.lock();
       commit_counter_++;
-      starts_[commit_counter_] = std::chrono::high_resolution_clock::now(); 
+//      starts_[commit_counter_] = std::chrono::high_resolution_clock::now(); 
       counter_mut_.unlock();
 //      std::string value = "Commiting Value Time_" + std::to_string(i) + " from " + view_->hostname();
       std::string value = "Commiting Value Time_" + std::to_string(commit_counter_) + " from " + view_->hostname();
@@ -102,13 +103,13 @@ class Master {
     counter_mut_.lock();
     commit_counter_++;
     value_id_t value_id = prop_value.id() >> 16;
-    periods_.push_back(std::chrono::duration_cast<std::chrono::nanoseconds>
-                     (finish-starts_[value_id % total_]).count());
-    trytimes_.push_back(try_time);
+//    periods_.push_back(std::chrono::duration_cast<std::chrono::nanoseconds>
+//                     (finish-starts_[value_id % total_]).count());
+//    trytimes_.push_back(try_time);
   
   
     std::string value = "Commiting Value Time_" + std::to_string(commit_counter_) + " from " + my_name_;
-    starts_[commit_counter_ % total_] = std::chrono::high_resolution_clock::now();
+//    starts_[commit_counter_ % total_] = std::chrono::high_resolution_clock::now();
     slot_id_t counter_tmp = commit_counter_;
     counter_mut_.unlock();
 
@@ -142,6 +143,7 @@ class Master {
   
   Captain *captain_;
   View *view_;
+  Commo *commo_;
   pool *my_pool_;
 
   int total_;
