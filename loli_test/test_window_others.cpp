@@ -25,7 +25,7 @@ ofstream my_file;
 int total = 10;
 
 void do_sth(slot_id_t slot_id, std::string& data) {
-  LOG_INFO("HAHA slot_id:%llu value:%s", slot_id, data.c_str());
+//  LOG_INFO("HAHA slot_id:%llu value:%s", slot_id, data.c_str());
 //  my_file << data << "\n";
 }
 

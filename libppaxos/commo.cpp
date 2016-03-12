@@ -15,7 +15,7 @@ Commo::Commo(std::vector<Captain *> &captains)
 //  for (uint32_t i = 0; i < captains_.size(); i++) {
 ////    senders_.push_back(new zmq::socket_t(context_, ZMQ_DEALER));
 //  }
-//  pool_ = new pool(4);
+//  pool_ = new pool(1);
 }
 
 Commo::Commo(Captain *captain, View &view, pool *pl) 
@@ -56,6 +56,7 @@ Commo::Commo(Captain *captain, View &view)
 //    if (senders_state_[i] < 0)
 //      LOG_INFO_COM("Node_ID: %lu does NOT connect!", i);
   }
+//  pool_ = new pool(1);
 //  self_pool_ = new pool(1);
 //  self_pool_->schedule(boost::bind(&Commo::waiting_msg, this));
   receiver_ = new zmq::socket_t(context_, ZMQ_ROUTER);
@@ -186,9 +187,11 @@ void Commo::broadcast_msg(google::protobuf::Message *msg, MsgType msg_type) {
 
   for (uint32_t i = 0; i < view_->nodes_size(); i++) {
     
-    if (i == view_->whoami()) {
-      continue;
-    }
+//    if (i == view_->whoami()) {
+////      pool_->schedule(boost::bind(&Captain::handle_msg, captain_, msg, msg_type));
+//      captain_->handle_msg(msg, msg_type);
+//      continue;
+//    }
 
     std::string msg_str;
     msg->SerializeToString(&msg_str);
@@ -197,9 +200,9 @@ void Commo::broadcast_msg(google::protobuf::Message *msg, MsgType msg_type) {
     zmq::message_t request(msg_str.size());
     memcpy((void *)request.data(), msg_str.c_str(), msg_str.size());
     LOG_DEBUG_COM("Broadcast to --%s (msg_type):%d", view_->hostname(i).c_str(), msg_type);
-    senders_mutexs_[i].lock(); 
+//    senders_mutexs_[i].lock(); 
     senders_[i]->send(request, ZMQ_DONTWAIT);
-    senders_mutexs_[i].unlock(); 
+//    senders_mutexs_[i].unlock(); 
     LOG_DEBUG_COM("Broadcast to --%s (msg_type):%d finished", view_->hostname(i).c_str(), msg_type);
   }
 
@@ -218,9 +221,9 @@ void Commo::send_one_msg(google::protobuf::Message *msg, MsgType msg_type, node_
 
   if (msg_type == ACCEPT || ((msg_type == COMMIT) && (node_id == view_->master_id()))) {
     LOG_DEBUG_COM("senders[%d] send request", node_id);
-    senders_mutexs_[node_id].lock(); 
+//    senders_mutexs_[node_id].lock(); 
     senders_[node_id]->send(request, ZMQ_DONTWAIT);
-    senders_mutexs_[node_id].unlock(); 
+//    senders_mutexs_[node_id].unlock(); 
     LOG_DEBUG_COM("senders[%d] send finish", node_id);
   }
   else { 
@@ -228,10 +231,10 @@ void Commo::send_one_msg(google::protobuf::Message *msg, MsgType msg_type, node_
     zmq::message_t identity(data_id.size());
     memcpy((void *)identity.data(), data_id.c_str(), data_id.size());
     LOG_DEBUG_COM("receiver_ reply request to %s", view_->hostname(node_id).c_str());
-    receiver_mutex_.lock();
+//    receiver_mutex_.lock();
     receiver_->send(identity, ZMQ_SNDMORE);
     receiver_->send(request, ZMQ_DONTWAIT);
-    receiver_mutex_.unlock();
+//    receiver_mutex_.unlock();
     LOG_DEBUG_COM("receiver_ reply request to %s finish", view_->hostname(node_id).c_str());
   }
 }

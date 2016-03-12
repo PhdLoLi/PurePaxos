@@ -236,9 +236,9 @@ void Captain::commit(PropValue* prop_value) {
 
   LOG_DEBUG_CAP("<commit_value> Start");
   LOG_DEBUG_CAP("(proposers_.size):%lu content:", proposers_.size());
-  for (std::map<slot_id_t, proposer_info_t *>::iterator it = proposers_.begin(); it != proposers_.end(); it++) {
-    LOG_DEBUG_CAP("slot_id %llu", it->first);
-  }
+//  for (std::map<slot_id_t, proposer_info_t *>::iterator it = proposers_.begin(); it != proposers_.end(); it++) {
+//    LOG_DEBUG_CAP("slot_id %llu", it->first);
+//  }
 
   if (proposers_.size() > window_size_) {
     LOG_INFO_CAP("Error Occur!!!! proposers_.size() %llu > window_size! %llu", proposers_.size(), window_size_);
@@ -275,7 +275,6 @@ void Captain::commit(PropValue* prop_value) {
 
   proposers_mutex_.unlock();
   
-  handle_msg(msg_pre, PREPARE);
   commo_->broadcast_msg(msg_pre, PREPARE);
 
 }
@@ -337,7 +336,6 @@ void Captain::commit_value(std::string& data) {
 
   proposers_mutex_.unlock();
 
-  handle_msg(msg_pre, PREPARE);
   commo_->broadcast_msg(msg_pre, PREPARE);
 
 //  new_slot(prop_value, 0);
@@ -366,7 +364,6 @@ void Captain::new_slot(PropValue *prop_value, int try_time) {
   // always captain set slot_id for msg
   msg_pre->mutable_msg_header()->set_slot_id(slot_id);
 
-  handle_msg(msg_pre, PREPARE);
   commo_->broadcast_msg(msg_pre, PREPARE);
 }
 
@@ -406,7 +403,6 @@ void Captain::new_slot(PropValue *prop_value, int try_time, slot_id_t old_slot) 
   msg_pre->mutable_msg_header()->set_slot_id(slot_id);
 
   LOG_TRACE_CAP("<new_slot> call <broadcast_msg> with (msg_type):PREPARE");
-  handle_msg(msg_pre, PREPARE);
   commo_->broadcast_msg(msg_pre, PREPARE);
   LOG_TRACE_CAP("<new_slot> call <broadcast_msg> Over");
 }
@@ -525,7 +521,6 @@ void Captain::handle_msg(google::protobuf::Message *msg, MsgType msg_type) {
 
           proposers_mutex_.unlock();
 
-          handle_msg(msg_acc, ACCEPT);
           commo_->broadcast_msg(msg_acc, ACCEPT);
 #endif
           break;
@@ -538,7 +533,6 @@ void Captain::handle_msg(google::protobuf::Message *msg, MsgType msg_type) {
           proposers_[slot_id]->proposer_status = INIT;
           proposers_mutex_.unlock();
 
-          handle_msg(msg_pre, PREPARE);
           commo_->broadcast_msg(msg_pre, PREPARE);
           break;
         }

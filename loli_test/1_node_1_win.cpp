@@ -4,30 +4,22 @@
  */
 
 #include "view.hpp"
-//#include <boost/bind.hpp>
-
 #include "captain.hpp"
 
-//#include "threadpool.hpp" 
-//#include <boost/thread/mutex.hpp>
+#include <boost/bind.hpp>
 #include <fstream>
-//#include <boost/filesystem.hpp>
+#include <boost/filesystem.hpp>
 #include <chrono>
 #include <signal.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <algorithm>
-//#include <thread>
 
 namespace ppaxos {
 
-//using namespace std::placeholders;
 using namespace std;
-//using namespace boost::filesystem;
-//using namespace boost::threadpool;
+using namespace boost::filesystem;
 
-
-  
 class Master {
  public:
   Master(node_id_t my_id, int node_num, int value_size, int win_size, int total) 
@@ -44,98 +36,76 @@ class Master {
     my_name_ = view_->hostname();
 
     // init callback
+//    callback_t callback = do_sth;
+
     callback_latency_t call_latency = boost::bind(&Master::count_latency, this, _1, _2, _3);
-//    callback_full_t callback_full = bind(&Master::count_exe_latency, this, _1, _2, _3);
+
+//    callback_full_t callback_full = count_exe_latency;
+
+    // init one specific captain_
+
     captain_ = new Captain(*view_, win_size_);
 
     captain_->set_callback(call_latency);
 //    captain_->set_callback(callback);
 //    captain_->set_callback(callback_full);
 
-//    my_pool_ = new pool(win_size);
 
   }
 
   ~Master() {
   }
 
-  void commit_thread(std::string &value) {
-    captain_->commit(value);
-  } 
-
   void start_commit() {
 
     start_ = std::chrono::high_resolution_clock::now();
     
-    for (int i = 0; i < win_size_; i++) {
+    for (int i = 0; i < total_; i++) {
       counter_mut_.lock();
       commit_counter_++;
-      starts_[commit_counter_] = std::chrono::high_resolution_clock::now(); 
       counter_mut_.unlock();
+//      starts_[commit_counter_] = std::chrono::high_resolution_clock::now(); 
 //      std::string value = "Commiting Value Time_" + std::to_string(i) + " from " + view_->hostname();
       std::string value = "Commiting Value Time_" + std::to_string(commit_counter_) + " from " + view_->hostname();
-//      LOG_INFO(" +++++++++++ ZERO Init Commit Value: %s +++++++++++", value.c_str());
-//      my_pool_->schedule(bind(&Master::commit_thread, this, value));
+//      LOG_INFO(" +++++++++++ Init Commit Value: %s +++++++++++", value.c_str());
       captain_->commit(value);
-//      LOG_INFO(" +++++++++++ ZERO FINISH Commit Value: %s +++++++++++", value.c_str());
-
 //      LOG_INFO("COMMIT DONE***********************************************************************");
     }
   }
 
-
   void count_exe_latency(slot_id_t slot_id, PropValue& prop_value, node_id_t node_id) {
   
+    exe_counter_mut_.lock();
+  
+    LOG_INFO("exe_latency slot_id:%llu value_id:%llu value:%s", 
+            slot_id, prop_value.id(), prop_value.data().c_str());
+  
+    exe_counter_mut_.unlock();
   }
   
   void count_latency(slot_id_t slot_id, PropValue& prop_value, int try_time) {
   
-    if (prop_value.has_cmd_type()) {
-      counter_mut_.lock();
-      commit_counter_++;
-      counter_mut_.unlock();
-      LOG_INFO("count_latency triggered! but this is a command slot_id : %llu commit_counter_ : %llu ", slot_id, commit_counter_);
-      return;
-    }
 //    LOG_INFO("count_latency triggered! slot_id : %llu", slot_id);
-
-    auto finish = std::chrono::high_resolution_clock::now();
-    counter_mut_.lock();
-    commit_counter_++;
-    value_id_t value_id = prop_value.id() >> 16;
-    periods_.push_back(std::chrono::duration_cast<std::chrono::nanoseconds>
-                     (finish-starts_[value_id % total_]).count());
-
-    trytimes_.push_back(try_time);
-//    LOG_INFO("periods[%d] = %d", periods_.size() - 1, periods_[periods_.size() - 1]);
-//    LOG_INFO("trytimes[%d] = %d", trytimes_.size() - 1, trytimes_[trytimes_.size() - 1]);
-  
-    std::string value = "Commiting Value Time_" + std::to_string(commit_counter_) + " from " + my_name_;
-    starts_[commit_counter_ % total_] = std::chrono::high_resolution_clock::now();
-    slot_id_t counter_tmp = commit_counter_;
-    counter_mut_.unlock();
-
-    if (counter_tmp <= total_ * 1) {
-  //    LOG_INFO("++++ I just Commit Value: %s ++++", value.c_str());
-      if (counter_tmp % 10000 == 0) {
-        auto finish = std::chrono::high_resolution_clock::now();
-        uint64_t period = std::chrono::duration_cast<std::chrono::milliseconds>(finish-start_).count();
-        start_ = std::chrono::high_resolution_clock::now();
+    counter_mut_.lock();  
+    if (commit_counter_ % 10000 == 0) {
+      auto finish = std::chrono::high_resolution_clock::now();
+      uint64_t period = std::chrono::duration_cast<std::chrono::milliseconds>(finish-start_).count();
+      start_ = std::chrono::high_resolution_clock::now();
+      if (period > 0) {
         int throughput = 10000 * 1000 / period;
-        LOG_INFO("Last_commit -- counter:%d milliseconds:%llu throughput:%d", counter_tmp, period, throughput);
-      }
-//      std::cout << "master want to commit Value: " << value << std::endl;
-//      boost::thread commit_first(bind(&Master::commit_thread, this, value));
-//      LOG_INFO(" +++++++++++ Init Commit Value: %s +++++++++++", value.c_str());
-//      my_pool_->schedule(bind(&Master::commit_thread, this, value));
-      captain_->commit(value);
-//      LOG_INFO(" +++++++++++ FINISH Commit Value: %s +++++++++++", value.c_str());
-//      std::cout << "master want to commit Value Finish: " << value << std::endl;
-    }
+        LOG_INFO("Last_commit -- counter:%d milliseconds:%llu throughput:%d", commit_counter_, period, throughput);
+      } else 
+        LOG_INFO("period = 0 e...");
 
+//      std::cout << "Last_commit -- counter: " << commit_counter_ << " milliseconds: " << period << " throughput: " << throughput; 
+    }
+    counter_mut_.unlock();
   }
   
   
+  void commit_thread(std::string &value) {
+    captain_->commit(value);
+  } 
 
   std::string my_name_;
   node_id_t my_id_;
@@ -145,13 +115,13 @@ class Master {
   
   Captain *captain_;
   View *view_;
-  pool *my_pool_;
 
   int total_;
   slot_id_t commit_counter_;
 
   boost::mutex counter_mut_;
   boost::mutex exe_counter_mut_;
+  boost::mutex latency_mut_;
   
   std::vector<uint64_t> periods_;
   std::vector<uint64_t> exe_periods_;
@@ -162,14 +132,13 @@ class Master {
 };
 
 
-
 static void sig_int(int num) {
   std::cout << "Control + C triggered! " << std::endl;
   exit(num);
 }  
 
 int main(int argc, char** argv) {
-  signal(SIGINT, sig_int);
+//  signal(SIGINT, sig_int);
  
 
   if (argc < 6) {
@@ -186,6 +155,7 @@ int main(int argc, char** argv) {
   Master master(my_id, node_num, value_size, win_size, total);
   master.start_commit();
 
+//  master.commo_->start();
 
   LOG_INFO("I'm sleeping for 10000");
   sleep(100000000);
