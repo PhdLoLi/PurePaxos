@@ -117,12 +117,13 @@ class Master {
 
     if (counter_tmp <= total_ * 1) {
   //    LOG_INFO("++++ I just Commit Value: %s ++++", value.c_str());
-      if (counter_tmp % 10000 == 0) {
+      if (counter_tmp % 1000 == 0) {
         auto finish = std::chrono::high_resolution_clock::now();
         uint64_t period = std::chrono::duration_cast<std::chrono::milliseconds>(finish-start_).count();
         start_ = std::chrono::high_resolution_clock::now();
-        int throughput = 10000 * 1000 / period;
+        int throughput = 1000 * 1000 / period;
         LOG_INFO("Last_commit -- counter:%d milliseconds:%llu throughput:%d", counter_tmp, period, throughput);
+        throughputs_.push_back(throughput);
       }
 //      std::cout << "master want to commit Value: " << value << std::endl;
 //      boost::thread commit_first(bind(&Master::commit_thread, this, value));
@@ -151,10 +152,9 @@ class Master {
   slot_id_t commit_counter_;
 
   boost::mutex counter_mut_;
-  boost::mutex exe_counter_mut_;
   
   std::vector<uint64_t> periods_;
-  std::vector<uint64_t> exe_periods_;
+  std::vector<uint64_t> throughputs_;
   std::vector<int> trytimes_;
   std::vector<std::chrono::high_resolution_clock::time_point> starts_;
   
