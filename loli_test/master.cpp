@@ -21,10 +21,8 @@
 
 namespace ppaxos {
 
-//using namespace std::placeholders;
 using namespace std;
 //using namespace boost::filesystem;
-//using namespace boost::threadpool;
 
 
   
@@ -75,7 +73,6 @@ class Master {
 //      std::string value = "Commiting Value Time_" + std::to_string(i) + " from " + view_->hostname();
       std::string value = "Commiting Value Time_" + std::to_string(commit_counter_) + " from " + view_->hostname();
 //      LOG_INFO(" +++++++++++ ZERO Init Commit Value: %s +++++++++++", value.c_str());
-//      my_pool_->schedule(bind(&Master::commit_thread, this, value));
       captain_->commit(value);
 //      LOG_INFO(" +++++++++++ ZERO FINISH Commit Value: %s +++++++++++", value.c_str());
 
@@ -146,7 +143,6 @@ class Master {
   
   Captain *captain_;
   View *view_;
-  pool *my_pool_;
 
   int total_;
   slot_id_t commit_counter_;

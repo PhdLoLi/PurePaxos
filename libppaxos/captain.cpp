@@ -579,7 +579,7 @@ void Captain::handle_msg(google::protobuf::Message *msg, MsgType msg_type) {
       proposers_mutex_.lock();
 
       if (proposers_.find(slot_id) == proposers_.end()) {
-        LOG_TRACE_CAP("(msg_type):PROMISE,proposers don't have this (slot_id):%llu Return!", slot_id);
+        LOG_TRACE_CAP("(msg_type):ACCEPTED,proposers don't have this (slot_id):%llu Return!", slot_id);
         proposers_mutex_.unlock();
         return;
       }
@@ -674,7 +674,6 @@ void Captain::handle_msg(google::protobuf::Message *msg, MsgType msg_type) {
   
               LOG_TRACE_CAP("after finish one, commit from queue, broadcast it");
 
-              handle_msg(msg_pre, PREPARE);
               commo_->broadcast_msg(msg_pre, PREPARE);
   
             }
@@ -683,7 +682,6 @@ void Captain::handle_msg(google::protobuf::Message *msg, MsgType msg_type) {
 //              callback_latency_(slot_id, *chosen_value, try_time);
 //            }
 
-//          new_slot(prop_value, 0, slot_id);
 
           } else {
             // recommit the same value need to change
@@ -708,7 +706,6 @@ void Captain::handle_msg(google::protobuf::Message *msg, MsgType msg_type) {
 
 //            new_slot(init_value, try_time, slot_id);
             LOG_INFO_CAP("Recommit the same (value):%s try_time :%d!!!", init_value->data().c_str(), try_time);
-            handle_msg(msg_pre, PREPARE);
             commo_->broadcast_msg(msg_pre, PREPARE);
             
           }
@@ -724,7 +721,6 @@ void Captain::handle_msg(google::protobuf::Message *msg, MsgType msg_type) {
           proposers_[slot_id]->proposer_status = INIT;
           proposers_mutex_.unlock();
 
-          handle_msg(msg_pre, PREPARE);
           commo_->broadcast_msg(msg_pre, PREPARE);
          
         }

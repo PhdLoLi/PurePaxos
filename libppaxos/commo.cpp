@@ -56,7 +56,7 @@ Commo::Commo(Captain *captain, View &view)
 //    if (senders_state_[i] < 0)
 //      LOG_INFO_COM("Node_ID: %lu does NOT connect!", i);
   }
-//  pool_ = new pool(1);
+  pool_ = new pool(1);
 //  self_pool_ = new pool(1);
 //  self_pool_->schedule(boost::bind(&Commo::waiting_msg, this));
   receiver_ = new zmq::socket_t(context_, ZMQ_ROUTER);
@@ -187,11 +187,11 @@ void Commo::broadcast_msg(google::protobuf::Message *msg, MsgType msg_type) {
 
   for (uint32_t i = 0; i < view_->nodes_size(); i++) {
     
-//    if (i == view_->whoami()) {
-////      pool_->schedule(boost::bind(&Captain::handle_msg, captain_, msg, msg_type));
+    if (i == view_->whoami()) {
+      pool_->schedule(boost::bind(&Captain::handle_msg, captain_, msg, msg_type));
 //      captain_->handle_msg(msg, msg_type);
-//      continue;
-//    }
+      continue;
+    }
 
     std::string msg_str;
     msg->SerializeToString(&msg_str);
