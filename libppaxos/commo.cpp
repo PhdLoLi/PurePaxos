@@ -56,7 +56,7 @@ Commo::Commo(Captain *captain, View &view)
 //    if (senders_state_[i] < 0)
 //      LOG_INFO_COM("Node_ID: %lu does NOT connect!", i);
   }
-  pool_ = new pool(1);
+  pool_ = new pool(2);
 //  self_pool_ = new pool(1);
 //  self_pool_->schedule(boost::bind(&Commo::waiting_msg, this));
   receiver_ = new zmq::socket_t(context_, ZMQ_ROUTER);
