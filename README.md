@@ -96,19 +96,19 @@ Run Test
 
 - Terminal 1 -- Node1 
 <pre>
-$ bin/servant 1 3
-parameters (node_id node_num)
+$ bin/servant 1 3 100000
+parameters (node_id node_num total_num)
 </pre>
 
 - Terminal 2 -- Node2
 <pre>
-$ bin/servant 2 3
-parameters (ndoe_id node_num)
+$ bin/servant 2 3 100000
+parameters (ndoe_id node_num total_num)
 </pre>
 
 - Terminal 0 -- Node0(Master) 
 <pre>
-$ bin/master 0 3 1 1 200000
+$ bin/master 0 3 1 1 100000
 parameters (ndoe_id node_num value_size win_size total_num)
 </pre>
 
