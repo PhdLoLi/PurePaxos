@@ -38,7 +38,7 @@ These are prerequisites to build PurePaxos.
 Prerequisites build instructions
 ==
 
-Mac OS build considerations (Ubuntu or CentOS Needed)
+Mac OS build considerations 
 -
 
 boost
@@ -58,7 +58,8 @@ yaml-cpp
 brew install libyaml
 
 
-Linux(Ubuntu) build considerations (Ubuntu or CentOS Needed)
+Linux(Ubuntu) build considerations 
+-
 
 clang
 --
@@ -96,19 +97,19 @@ Run Test
 - Terminal 1 -- Node1 
 <pre>
 $ bin/servant 1 3
-(node_id node_num)
+parameters (node_id node_num)
 </pre>
 
 - Terminal 2 -- Node2
 <pre>
 $ bin/servant 2 3
-(ndoe_id node_num)
+parameters (ndoe_id node_num)
 </pre>
 
 - Terminal 0 -- Node0(Master) 
 <pre>
 $ bin/master 0 3 1 1 200000
-(ndoe_id node_num value_size win_size total_num)
+parameters (ndoe_id node_num value_size win_size total_num)
 </pre>
 
 
