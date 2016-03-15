@@ -58,6 +58,29 @@ yaml-cpp
 brew install libyaml
 
 
+Linux(Ubuntu) build considerations (Ubuntu or CentOS Needed)
+
+clang
+--
+sudo apt-get install clang 
+
+boost
+--
+sudo apt-get install libboost-all-dev
+
+protobuf
+--
+sudo apt-get install libprotobuf-dev protobuf-compiler python-protobuf 
+
+zeromq
+--
+sudo apt-get install libzmq3-dev python-zmq
+
+yaml-cpp
+--
+sudo apt-get install libyaml-cpp-dev 
+
+
 Build instructions
 ==
 <pre>
@@ -72,17 +95,20 @@ Run Test
 
 - Terminal 1 -- Node1 
 <pre>
-$ bin/test_window_others 1 3
+$ bin/servant 1 3
+(node_id node_num)
 </pre>
 
 - Terminal 2 -- Node2
 <pre>
-$ bin/test_window_others 2 3
+$ bin/servant 2 3
+(ndoe_id node_num)
 </pre>
 
 - Terminal 0 -- Node0(Master) 
 <pre>
-$ bin/test_window  0 3 1 1
+$ bin/master 0 3 1 1 200000
+(ndoe_id node_num value_size win_size total_num)
 </pre>
 
 
