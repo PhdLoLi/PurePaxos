@@ -18,12 +18,14 @@
 #include <stdio.h>
 #include <algorithm>
 //#include <thread>
+#include <fstream>
+
+
 
 namespace ppaxos {
 
 using namespace std;
 //using namespace boost::filesystem;
-
 
   
 class Master {
@@ -31,7 +33,7 @@ class Master {
   Master(node_id_t my_id, int node_num, int value_size, int win_size, int total) 
     : my_id_(my_id), node_num_(node_num), 
       value_size_(value_size), win_size_(win_size), total_(total),
-      commit_counter_(0), starts_(total) {
+      commit_counter_(0), starts_(total), done_(false) {
 
     std::string config_file = "config/localhost-" + to_string(node_num_) + ".yaml";
 
@@ -129,7 +131,27 @@ class Master {
       captain_->commit(value);
 //      LOG_INFO(" +++++++++++ FINISH Commit Value: %s +++++++++++", value.c_str());
 //      std::cout << "master want to commit Value Finish: " << value << std::endl;
-    }
+    } else {
+       file_mut_.lock();
+       if (done_)  {
+       } else {
+         LOG_INFO("Writing File Now!");
+         std::string thr_name = "results/t_" + std::to_string(node_num_) + "_" + std::to_string(win_size_) + ".txt";
+         file_throughput_.open(thr_name);
+         for (int i = 0; i < throughputs_.size(); i++) {
+           file_throughput_ << throughputs_[i] << "\n";
+         }
+         std::string lat_name = "results/l_" + std::to_string(node_num_) + "_" + std::to_string(win_size_) + ".txt";
+         file_latency_.open(lat_name);
+         for (int i = 0; i < periods_.size(); i++) {
+           file_latency_ << periods_[i] << "\n";
+         }
+         file_throughput_.close();
+         LOG_INFO("Writing File Finished!");
+         done_ = true;
+       }
+       file_mut_.unlock();
+    } 
 
   }
   
@@ -155,6 +177,13 @@ class Master {
   std::vector<std::chrono::high_resolution_clock::time_point> starts_;
   
   std::chrono::high_resolution_clock::time_point start_;
+//  std::string filename = "values/client_" +  std::to_string(node_id);
+//  std::cout << "FileName " << filename << std::endl;
+  std::ofstream file_throughput_;
+  std::ofstream file_latency_;
+  boost::mutex file_mut_;
+  bool done_;
+
 };
 
 
